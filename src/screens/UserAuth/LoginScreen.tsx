@@ -74,7 +74,9 @@ const LoginScreen = () => {
       alert(errorMessage);
     }
   };
-
+  const forgotPassword = async () => {
+    alert('seems like a you problem');
+  };
   return (
     <View style={styles.container}>
       <Text style={styles.welcome}>Hi, Welcome Back! 👋</Text>
@@ -99,7 +101,7 @@ const LoginScreen = () => {
           value={password}
         />
         <View style={styles.forgotPasswordContainer}>
-          <TouchableOpacity>
+          <TouchableOpacity onPress={forgotPassword}>
             <Text style={styles.forgotPassword}>Forgot Password?</Text>
           </TouchableOpacity>
         </View>
