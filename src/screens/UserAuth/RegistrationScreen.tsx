@@ -1,13 +1,20 @@
 import { StatusBar } from 'expo-status-bar';
-import React, { useContext, useEffect, useState } from 'react';
-import { Text, TextInput, View, TouchableOpacity } from 'react-native';
+import React, { useContext, useState } from 'react';
+import {
+  Text,
+  TextInput,
+  View,
+  TouchableOpacity,
+  ActivityIndicator,
+} from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { styles } from './styles';
-import { getAuth, createUserWithEmailAndPassword } from 'firebase/auth';
-import { doc, setDoc } from 'firebase/firestore';
+import { getAuth } from 'firebase/auth';
 import firebase from '../../config/firebase';
 import { db } from '../../config/firebase';
 import UserContext from '../../components/UserContext';
+import useQuoteOfTheDay from '../../components/useQuoteOfTheDay';
+import { handleRegistration } from '../../components/authComponent';
 const RegistrationScreen = () => {
   const navigation = useNavigation();
 
@@ -15,6 +22,8 @@ const RegistrationScreen = () => {
   const [password, setPassword] = useState('');
   const [username, setUsername] = useState('');
   const auth = getAuth(firebase);
+  const [isLoading, setIsLoading] = useState(false); // New state variable for loading
+
   const userContext = useContext(UserContext);
   const setUser = userContext
     ? userContext.setUser
@@ -22,49 +31,19 @@ const RegistrationScreen = () => {
         throw new Error('UserContext is not initialized');
       };
 
-  const [quote, setQuote] = useState({ text: '', author: '' });
-
-  useEffect(() => {
-    fetch('https://type.fit/api/quotes')
-      .then(function (response) {
-        return response.json();
-      })
-      .then(function (data) {
-        const randomIndex = Math.floor(Math.random() * data.length);
-        setQuote(data[randomIndex]);
-      });
-  }, []);
-  const handleRegistration = async () => {
-    try {
-      const userCredential = await createUserWithEmailAndPassword(
-        auth,
-        email,
-        password
-      );
-      const user = userCredential.user;
-      await setDoc(doc(db, 'users', user.uid), { username: username });
-      setUser({ id: user.uid, username: username });
-      navigation.navigate('Home' as never);
-
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (error: any) {
-      console.log(error);
-      let errorMessage;
-      switch (error.code) {
-        case 'auth/invalid-email':
-          errorMessage =
-            'The email address is already in use by another account.';
-          break;
-        case 'auth/weak-password':
-          errorMessage = 'The password must be 6 characters long or more.';
-          break;
-        default:
-          errorMessage = 'An error occurred. Please try again.';
-          break;
-      }
-      console.log(errorMessage);
-      alert(errorMessage);
-    }
+  const quote = useQuoteOfTheDay();
+  const handleRegistrationPress = async () => {
+    setIsLoading(true);
+    await handleRegistration(
+      auth,
+      email,
+      password,
+      username,
+      db,
+      setUser,
+      navigation
+    );
+    setIsLoading(false);
   };
   return (
     <View style={styles.container}>
@@ -97,8 +76,16 @@ const RegistrationScreen = () => {
         />
       </View>
 
-      <TouchableOpacity style={styles.signButton} onPress={handleRegistration}>
-        <Text style={styles.signText}>Sign Up</Text>
+      <TouchableOpacity
+        style={styles.signButton}
+        onPress={handleRegistrationPress}
+        disabled={isLoading} // Disable button while loading
+      >
+        {isLoading ? ( // Show loading indicator if loading
+          <ActivityIndicator color="white" />
+        ) : (
+          <Text style={styles.signText}>Sign Up</Text>
+        )}
       </TouchableOpacity>
 
       <View style={styles.signUpContainer}>

@@ -1,13 +1,21 @@
 import { StatusBar } from 'expo-status-bar';
-import React, { useState, useContext, useEffect } from 'react';
-import { Text, TextInput, View, TouchableOpacity } from 'react-native';
+import React, { useState, useContext } from 'react';
+import {
+  Text,
+  TextInput,
+  View,
+  TouchableOpacity,
+  ScrollView,
+  ActivityIndicator,
+} from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { styles } from './styles';
-import { getAuth, signInWithEmailAndPassword } from 'firebase/auth';
+import { getAuth } from 'firebase/auth';
 import firebase from '../../config/firebase';
 import UserContext from '../../components/UserContext';
 import { db } from '../../config/firebase';
-import { doc, getDoc } from 'firebase/firestore';
+import useQuoteOfTheDay from '../../components/useQuoteOfTheDay';
+import { forgotPassword, handleLogin } from '../../components/authComponent';
 
 const LoginScreen = () => {
   const navigation = useNavigation();
@@ -15,6 +23,7 @@ const LoginScreen = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const auth = getAuth(firebase);
+  const [isLoading, setIsLoading] = useState(false); // New state variable for loading
 
   const userContext = useContext(UserContext);
   const setUser = userContext
@@ -23,62 +32,19 @@ const LoginScreen = () => {
         throw new Error('UserContext is not initialized');
       };
 
-  const [quote, setQuote] = useState({ text: '', author: '' });
+  const quote = useQuoteOfTheDay();
 
-  useEffect(() => {
-    fetch('https://type.fit/api/quotes')
-      .then(function (response) {
-        return response.json();
-      })
-      .then(function (data) {
-        const randomIndex = Math.floor(Math.random() * data.length);
-        setQuote(data[randomIndex]);
-      });
-  }, []);
-
-  const handleLogin = async () => {
-    try {
-      const userCredential = await signInWithEmailAndPassword(
-        auth,
-        email,
-        password
-      );
-      if (userCredential.user) {
-        const docRef = doc(db, 'users', userCredential.user.uid);
-        const docSnap = await getDoc(docRef);
-
-        if (docSnap.exists()) {
-          const username = docSnap.data().username;
-          setUser({ id: userCredential.user.uid, username });
-        }
-
-        // If the user exists, navigate to the Home screen.
-        navigation.navigate('Home' as never);
-      }
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (error: any) {
-      console.log(error);
-      let errorMessage;
-      switch (error.code) {
-        case 'auth/wrong-password':
-          errorMessage = 'Wrong password. Please try again.';
-          break;
-        case 'auth/user-not-found':
-          errorMessage = 'No user found with this email.';
-          break;
-        default:
-          errorMessage = 'An error occurred. Please try again.';
-          break;
-      }
-      console.log(errorMessage);
-      alert(errorMessage);
-    }
+  const handleLoginPress = async () => {
+    setIsLoading(true); // Show loading screen
+    await handleLogin(auth, email, password, db, setUser, navigation);
+    setIsLoading(false);
   };
-  const forgotPassword = async () => {
-    alert('seems like a you problem');
+  const handleForgotPasswordPress = () => {
+    forgotPassword();
   };
+
   return (
-    <View style={styles.container}>
+    <ScrollView contentContainerStyle={styles.container}>
       <Text style={styles.welcome}>Hi, Welcome Back! 👋</Text>
 
       <View style={styles.inputContainer}>
@@ -101,14 +67,22 @@ const LoginScreen = () => {
           value={password}
         />
         <View style={styles.forgotPasswordContainer}>
-          <TouchableOpacity onPress={forgotPassword}>
+          <TouchableOpacity onPress={handleForgotPasswordPress}>
             <Text style={styles.forgotPassword}>Forgot Password?</Text>
           </TouchableOpacity>
         </View>
       </View>
 
-      <TouchableOpacity style={styles.signButton} onPress={handleLogin}>
-        <Text style={styles.signText}>Login</Text>
+      <TouchableOpacity
+        style={styles.signButton}
+        onPress={handleLoginPress}
+        disabled={isLoading} // Disable button while loading
+      >
+        {isLoading ? ( // Show loading indicator if loading
+          <ActivityIndicator color="white" />
+        ) : (
+          <Text style={styles.signText}>Login</Text>
+        )}
       </TouchableOpacity>
 
       <View style={styles.signUpContainer}>
@@ -131,7 +105,7 @@ const LoginScreen = () => {
       </View>
 
       <StatusBar style="auto" />
-    </View>
+    </ScrollView>
   );
 };
 
