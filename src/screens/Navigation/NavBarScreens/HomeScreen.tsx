@@ -3,20 +3,19 @@ import {
   SafeAreaView,
   ActivityIndicator,
   TextInput,
-  Button,
   KeyboardAvoidingView,
-  Platform,
+  TouchableOpacity,
 } from 'react-native';
 import { Text, View } from 'react-native';
-import BottomNavBar from '../NavigationBar';
 import UserContext from '../../../components/UserContext';
 import { DocumentData } from 'firebase/firestore';
-import { styles } from './HomeScreenStyle';
+import { styles } from '../../../styles/LearningScreenStyle';
 import {
   fetchData,
   handleAnswerChange,
   handleAnswerSubmit,
-} from '../../../components/HomeScreenComponent';
+} from '../../../components/LearningScreenComponent';
+//import { setNavBarScreen } from '../../../components/navBarComponent';
 const HomeScreen = () => {
   const userContext = useContext(UserContext);
   const [data, setData] = useState<DocumentData | null>(null);
@@ -28,7 +27,7 @@ const HomeScreen = () => {
   useEffect(() => {
     fetchData(setData, setIsLoading);
   }, []);
-
+  //setNavBarScreen(setActiveScreen);
   const handleAnswerChangeCall = (text: string) => {
     handleAnswerChange(text, setAnswer);
   };
@@ -69,19 +68,24 @@ const HomeScreen = () => {
       </View>
       <KeyboardAvoidingView style={styles.dataContainer}>
         <Text style={styles.englishWord}>{data?.english}</Text>
+        <View style={styles.inputContainer}></View>
         <TextInput
           style={styles.input}
           value={answer}
           onChangeText={handleAnswerChangeCall}
           placeholder="Your answer"
         />
-        <Button title="Submit" onPress={handleAnswerSubmitCall} />
+        <TouchableOpacity
+          style={styles.submitButton}
+          onPress={handleAnswerSubmitCall}
+        >
+          <Text style={styles.submitText}>Submit</Text>
+        </TouchableOpacity>
         {isCorrect && <Text style={styles.correctText}>Correct!</Text>}
         {!isCorrect && isStarted && (
           <Text style={styles.incorrectText}>Incorrect! Try again.</Text>
         )}
       </KeyboardAvoidingView>
-      <BottomNavBar />
     </SafeAreaView>
   );
 };

@@ -9,7 +9,7 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { styles } from './styles';
+import { styles } from '../../styles/AuthStyles';
 import { getAuth } from 'firebase/auth';
 import firebase from '../../config/firebase';
 import UserContext from '../../components/UserContext';

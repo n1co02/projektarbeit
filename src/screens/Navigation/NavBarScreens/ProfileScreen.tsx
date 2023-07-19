@@ -1,7 +1,6 @@
 import React, { useContext } from 'react';
 import { SafeAreaView, StyleSheet } from 'react-native';
 import { Text, View } from 'react-native';
-import BottomNavBar from '../NavigationBar';
 import UserContext from '../../../components/UserContext';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -17,11 +16,11 @@ const ProfileScreen = () => {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.content}>
-        <Text style={styles.text}>Hello, {user.username}</Text>
+        <Text style={styles.text}>
+          Hello, {user.id}, this is the profile screen
+        </Text>
         {/* Your screen content here */}
       </View>
-
-      <BottomNavBar />
     </SafeAreaView>
   );
 };

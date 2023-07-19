@@ -71,7 +71,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
   },
-
   signUpContainer: {
     flexDirection: 'row',
     justifyContent: 'center',

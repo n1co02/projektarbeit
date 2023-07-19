@@ -3,11 +3,8 @@ import { createStackNavigator } from '@react-navigation/stack';
 import React, { useState } from 'react';
 import LoginScreen from './src/screens/UserAuth/LoginScreen';
 import RegistrationScreen from './src/screens/UserAuth/RegistrationScreen';
-import HomeScreen from './src/screens/Navigation/NavBarScreens/HomeScreen';
-import ClassRoomScreen from './src/screens/Navigation/NavBarScreens/ClassRoomScreen';
-import ProfileScreen from './src/screens/Navigation/NavBarScreens/ProfileScreen';
 import UserContext, { User } from './src/components/UserContext';
-
+import BottomNavBar from './src/screens/Navigation/NavigationBar';
 const Stack = createStackNavigator();
 
 export default function App() {
@@ -28,18 +25,8 @@ export default function App() {
             options={{ headerShown: false }}
           />
           <Stack.Screen
-            name="Home"
-            component={HomeScreen}
-            options={{ headerShown: false }}
-          />
-          <Stack.Screen
-            name="ClassRoom"
-            component={ClassRoomScreen}
-            options={{ headerShown: false }}
-          />
-          <Stack.Screen
-            name="Profile"
-            component={ProfileScreen}
+            name="bottomNavBar"
+            component={BottomNavBar}
             options={{ headerShown: false }}
           />
         </Stack.Navigator>

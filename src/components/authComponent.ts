@@ -37,7 +37,7 @@ export const handleLogin = async (
       }
 
       // If the user exists, navigate to the Home screen.
-      navigation.navigate('Home' as never);
+      navigation.navigate('bottomNavBar' as never);
     }
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (error: any) {
@@ -85,7 +85,7 @@ export const handleRegistration = async (
     const user = userCredential.user;
     await setDoc(doc(db, 'users', user.uid), { username: username });
     setUser({ id: user.uid, username: username });
-    navigation.navigate('Home' as never);
+    navigation.navigate('bottomNavBar' as never);
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (error: any) {
@@ -93,8 +93,7 @@ export const handleRegistration = async (
     let errorMessage;
     switch (error.code) {
       case 'auth/invalid-email':
-        errorMessage =
-          'The email address is already in use by another account.';
+        errorMessage = 'Invalid Email!';
         break;
       case 'auth/weak-password':
         errorMessage = 'The password must be 6 characters long or more.';
