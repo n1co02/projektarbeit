@@ -89,12 +89,41 @@ const CreatedRoomScreen = () => {
   const [task, setTask] = useState<{ english: string; german: string } | null>(
     null
   );
+  const [questionCount, setQuestionCount] = useState(0);
+  const [time, setTime] = useState<number | null>(null);
+  const [totalQuestions, setTotalQuestions] = useState<number | null>(null);
+
   const handleStartPressed = async () => {
     setQrCodeVisible(false);
     const returnValue = await handleQuestions(route.params.roomId);
     setTask(returnValue as { english: string; german: string } | null);
+    setTime(Number(returnValue?.time));
+    setTotalQuestions(Number(returnValue?.questions));
     console.log(returnValue);
   };
+
+  useEffect(() => {
+    let intervalId: NodeJS.Timeout;
+    if (task && time && totalQuestions) {
+      intervalId = setInterval(async () => {
+        if (questionCount >= totalQuestions) {
+          clearInterval(intervalId);
+        } else {
+          try {
+            const returnValue = await handleQuestions(route.params.roomId);
+            setTask(returnValue as { english: string; german: string } | null);
+            setQuestionCount(questionCount + 1);
+          } catch (error) {
+            clearInterval(intervalId);
+            console.error('Error fetching data:', error);
+          }
+        }
+      }, time * 1000);
+    }
+    return () => {
+      clearInterval(intervalId);
+    };
+  }, [task, time, totalQuestions, questionCount]);
 
   return (
     <View style={createdRoomStyles.container}>
