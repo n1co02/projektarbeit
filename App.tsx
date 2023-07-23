@@ -5,6 +5,8 @@ import LoginScreen from './src/screens/UserAuth/LoginScreen';
 import RegistrationScreen from './src/screens/UserAuth/RegistrationScreen';
 import UserContext, { User } from './src/components/UserContext';
 import BottomNavBar from './src/screens/Navigation/NavigationBar';
+import CreatedRoomScreen from './src/screens/Navigation/ClassRoomScreens/CreatedRoomScreen';
+import JoinedRoomScreen from './src/screens/Navigation/ClassRoomScreens/JoinedRoomScreen';
 const Stack = createStackNavigator();
 
 export default function App() {
@@ -28,6 +30,16 @@ export default function App() {
             name="bottomNavBar"
             component={BottomNavBar}
             options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="CreatedRoomScreen"
+            component={CreatedRoomScreen}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="JoinedRoomScreen"
+            component={JoinedRoomScreen}
+            options={{ headerShown: true }}
           />
         </Stack.Navigator>
       </NavigationContainer>

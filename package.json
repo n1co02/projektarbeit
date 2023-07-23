@@ -11,7 +11,7 @@
   "dependencies": {
     "@expo/webpack-config": "^18.0.1",
     "@react-native-google-signin/google-signin": "^10.0.1",
-    "@react-native-picker/picker": "^2.4.10",
+    "@react-native-picker/picker": "2.4.8",
     "@react-navigation/bottom-tabs": "^6.5.7",
     "@react-navigation/native": "^6.1.6",
     "@react-navigation/stack": "^6.3.16",
@@ -27,6 +27,8 @@
     "react-native-camera": "^4.2.1",
     "react-native-dropdown-picker": "^5.4.6",
     "react-native-modal": "^13.0.1",
+    "react-native-qrcode-svg": "^6.2.0",
+    "react-native-svg": "13.4.0",
     "react-native-web": "~0.18.10"
   },
   "devDependencies": {

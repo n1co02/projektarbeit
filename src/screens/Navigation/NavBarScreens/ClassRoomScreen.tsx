@@ -13,22 +13,37 @@ import { BarCodeScanner } from 'expo-barcode-scanner';
 import UserContext from '../../../components/UserContext';
 import { styles } from '../../../styles/LearningScreenStyle';
 import { modalStyles } from '../../../styles/ModalStyles';
+import { pickerStyles } from '../../../styles/pickerStyles';
 import { Picker } from '@react-native-picker/picker';
 import { handleCreateRoom } from '../../../components/ClassRoomComponent';
-
+import {
+  NavigationProp,
+  useNavigation,
+  ParamListBase,
+} from '@react-navigation/native';
+import { navigateFromQrCode } from '../../../components/ClassRoomComponent';
 const ClassRoomScreen = () => {
   const userContext = useContext(UserContext);
 
   //create Room Logic
+  const [createRoom, setCreateRoom] = useState(false);
   const [selectedQuestions, setSelectedQuestions] = useState('5');
   const [selectedTime, setSelectedTime] = useState('15');
   const [isLoading, setIsLoading] = useState(false); // New state variable for loading
+  const navigation =
+    useNavigation<NavigationProp<ParamListBase, 'CreatedRoomScreen'>>();
 
   const handleCreateRoomPress = async () => {
     setIsLoading(true);
     if (userContext !== null) {
-      handleCreateRoom(userContext.user, selectedTime, selectedQuestions);
+      await handleCreateRoom(
+        userContext.user,
+        selectedTime,
+        selectedQuestions,
+        navigation
+      );
     }
+    setCreateRoom(false);
     setIsLoading(false);
   };
 
@@ -36,7 +51,6 @@ const ClassRoomScreen = () => {
 
   // Modal visibility state
   const [openBarCodeScanner, setOpenBarCodeScanner] = useState(false);
-  const [createRoom, setCreateRoom] = useState(false);
   //bar code scanner here
   const [hasPermission, setHasPermission] = useState<boolean | null>(null);
   const [scanned, setScanned] = useState(false);
@@ -50,7 +64,7 @@ const ClassRoomScreen = () => {
     getBarCodeScannerPermissions();
   }, []);
 
-  const handleBarCodeScanned = ({
+  const handleBarCodeScanned = async ({
     type,
     data,
   }: {
@@ -58,7 +72,11 @@ const ClassRoomScreen = () => {
     data: string;
   }) => {
     setScanned(true);
-    alert(`Bar code with type ${type} and data ${data} has been scanned!`);
+    if (userContext !== null) {
+      await navigateFromQrCode(userContext.user, data, navigation);
+    }
+    setScanned(false);
+    setOpenBarCodeScanner(false);
   };
 
   if (hasPermission === null) {
@@ -165,14 +183,5 @@ const ClassRoomScreen = () => {
     </SafeAreaView>
   );
 };
-const pickerStyles = StyleSheet.create({
-  picker: {
-    width: 200,
-    height: 50,
-  },
-  pickerItem: {
-    color: 'red',
-  },
-});
 
 export default ClassRoomScreen;
