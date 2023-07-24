@@ -1,6 +1,12 @@
 import { NavigationProp } from '@react-navigation/native';
 import { User } from './UserContext';
-import { deleteDoc, doc, getDoc, getFirestore } from 'firebase/firestore';
+import {
+  deleteDoc,
+  doc,
+  getDoc,
+  getFirestore,
+  updateDoc,
+} from 'firebase/firestore';
 import { db } from '../config/firebase';
 
 export const leaveRoom = async (
@@ -13,7 +19,7 @@ export const leaveRoom = async (
     const docRef = doc(db, 'rooms', roomId);
     const docSnapshot = await getDoc(docRef);
     if (docSnapshot.exists()) {
-      // Get the data from the document snapshot
+      // Get the data from the document snapshotssss
       const roomData = docSnapshot.data();
 
       // Access the "creator" field from the room data
@@ -30,36 +36,38 @@ export const leaveRoom = async (
   }
 };
 ///check if bugs
-export const handleQuestions = async (roomId: string) => {
-  const returnValue = await handleTimerAndQuestions(roomId);
-  const questions = returnValue?.questions;
-  const time = returnValue?.time;
+export const handleQuestions = async (roomId: string, timer: number) => {
   const randomId = Math.floor(Math.random() * 1003) + 1; // random number between 1 and 1003
   const docId = String(randomId); // convert the random number to string
 
   try {
     const docRef = doc(db, 'tasks', docId);
     const docSnapshot = await getDoc(docRef);
-
+    const roomRef = doc(db, 'rooms', roomId);
+    const roomSnapshot = await getDoc(roomRef);
     if (docSnapshot.exists()) {
       const randomDocument = docSnapshot.data();
-      return randomDocument;
+      const updatedQuizItem = {
+        question: randomDocument?.english || '', // Update with the English field from randomDocument, if available
+        answer: randomDocument?.german || '', // Update with the German field from randomDocument, if available
+        timer: timer,
+      };
+      const roomData = roomSnapshot.data();
+      const quizItemsArray = roomData?.quizItems || [];
+      quizItemsArray[0] = updatedQuizItem;
+      const started = true;
+      // Update the room document with the new quizItems array
+      await updateDoc(roomRef, { quizItems: quizItemsArray, started: started });
     }
   } catch (error) {
     console.error('Error fetching data:', error);
   }
 };
-const handleTimerAndQuestions = async (roomId: string) => {
-  const db = getFirestore();
+export const handleRoomSettings = async (roomId: string) => {
   const docRef = doc(db, 'rooms', roomId);
   const docSnapshot = await getDoc(docRef);
   if (docSnapshot.exists()) {
-    // Get the data from the document snapshot
-    const roomData = docSnapshot.data();
-    console.log(roomData);
-    const time = roomData.time;
-    const questions = roomData.questions;
-    return { time: time, questions: questions };
-    console.log(time, questions);
+    const randomDocument = docSnapshot.data();
+    return randomDocument;
   }
 };

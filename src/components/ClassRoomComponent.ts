@@ -11,7 +11,7 @@ import { NavigationProp, ParamListBase } from '@react-navigation/native';
 
 export const handleCreateRoom = async (
   user: User | null,
-  time: string,
+  time: number,
   questions: string,
   navigation: NavigationProp<ParamListBase, 'CreatedRoomScreen'>
 ) => {
@@ -20,11 +20,19 @@ export const handleCreateRoom = async (
   if (!user) {
     throw new Error('User must be logged in to create a room');
   }
+  const started = false;
 
   // Prepare the room document
 
   const room = {
-    time,
+    quizItems: [
+      {
+        time,
+        question: '',
+        answer: '',
+      },
+    ],
+    started,
     questions,
     joinedUsers: [],
     creator: user.id,

@@ -28,7 +28,7 @@ const ClassRoomScreen = () => {
   //create Room Logic
   const [createRoom, setCreateRoom] = useState(false);
   const [selectedQuestions, setSelectedQuestions] = useState('5');
-  const [selectedTime, setSelectedTime] = useState('15');
+  const [selectedTime, setSelectedTime] = useState(15);
   const [isLoading, setIsLoading] = useState(false); // New state variable for loading
   const navigation =
     useNavigation<NavigationProp<ParamListBase, 'CreatedRoomScreen'>>();
