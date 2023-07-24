@@ -41,7 +41,11 @@ export const handleCreateRoom = async (
   // Add the room document to the 'rooms' collection
   const docRef = await addDoc(collection(db, 'rooms'), room);
 
-  navigation.navigate('CreatedRoomScreen', { roomId: docRef.id });
+  navigation.navigate('CreatedRoomScreen', {
+    roomId: docRef.id,
+    questions: questions,
+    time: time,
+  });
 };
 
 export const navigateFromQrCode = async (

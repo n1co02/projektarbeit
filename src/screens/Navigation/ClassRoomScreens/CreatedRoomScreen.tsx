@@ -3,15 +3,12 @@ import { Text, TouchableOpacity, View, Alert } from 'react-native';
 import { useRoute, RouteProp, useNavigation } from '@react-navigation/native';
 import { createdRoomStyles } from '../../../styles/CreatedRoomStyles';
 import QRCode from 'react-native-qrcode-svg';
-import {
-  handleRoomSettings,
-  leaveRoom,
-} from '../../../components/openedRoomComponent';
+import { leaveRoom } from '../../../components/openedRoomComponent';
 import UserContext from '../../../components/UserContext';
 import { getFirestore, doc, getDoc, onSnapshot } from 'firebase/firestore';
 import { handleQuestions } from '../../../components/openedRoomComponent';
 type StackParamList = {
-  CreatedRoomScreen: { roomId: string };
+  CreatedRoomScreen: { roomId: string; questions: number; time: number };
 };
 
 type CreatedRoomScreenRouteProp = RouteProp<
@@ -74,7 +71,6 @@ const CreatedRoomScreen = () => {
         const roomData = roomSnapshot.data();
         const joinedUsersArray = roomData?.joinedUsers || [];
         setJoinedUsers(joinedUsersArray);
-        console.log(joinedUsers);
       } else {
         console.error('Room not found');
       }
@@ -94,33 +90,25 @@ const CreatedRoomScreen = () => {
   const [task, setTask] = useState<{ english: string; german: string } | null>(
     null
   );
-
-  const [timer, setTimer] = useState(0);
+  const [timer, setTimer] = useState(route.params.time);
   const [elapsedTime, setElapsedTime] = useState<number | null>(null);
   const [intervalId, setIntervalId] = useState<number | null>(null);
   const [questionsAsked, setQuestionsAsked] = useState(0);
-  const [totalQuestions, setTotalQuestions] = useState(0);
+  const totalQuestions = route.params.questions;
   const handleStartPressed = async () => {
     setQrCodeVisible(false);
-    const roomSettings = await handleRoomSettings(route.params.roomId);
-    const time = roomSettings?.quizItems[0]?.time;
-    const questions = roomSettings?.questions;
-    console.log(typeof questions);
-    setTotalQuestions(questions);
-    console.log(totalQuestions);
+
     // Check if there are remaining questions
-    setTimer(time);
-    await handleTimer(time);
-    await handleQuestions(route.params.roomId, time);
-    setElapsedTime(time); // Initialize elapsedTime to timer value
+    await handleTimer(timer);
+    await handleQuestions(route.params.roomId, timer);
+    setElapsedTime(timer); // Initialize elapsedTime to timer value
   };
 
   useEffect(() => {
-    if (timer > 0 && task != null) {
-      alert('hallo');
+    if (timer > 0 && qrCodeVisible == false) {
       handleTimer(timer);
     }
-  }, [timer, task]);
+  }, [timer]);
 
   const handleTimer = async (timer: number) => {
     if (intervalId !== null) {
@@ -143,7 +131,6 @@ const CreatedRoomScreen = () => {
           ) {
             handleQuestions(route.params.roomId, timer);
             setQuestionsAsked((prevQuestionsAsked) => prevQuestionsAsked + 1);
-            console.log(questionsAsked, totalQuestions);
             setElapsedTime(timer);
             handleTimer(timer);
           } else {
