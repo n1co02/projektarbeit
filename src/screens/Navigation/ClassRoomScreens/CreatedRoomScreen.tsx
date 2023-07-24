@@ -94,11 +94,12 @@ const CreatedRoomScreen = () => {
   const [task, setTask] = useState<{ english: string; german: string } | null>(
     null
   );
+
   const [timer, setTimer] = useState(0);
   const [elapsedTime, setElapsedTime] = useState<number | null>(null);
   const [intervalId, setIntervalId] = useState<number | null>(null);
   const [questionsAsked, setQuestionsAsked] = useState(0);
-  const [totalQuestions, setTotalQuestions] = useState<number | null>(null);
+  const [totalQuestions, setTotalQuestions] = useState(0);
   const handleStartPressed = async () => {
     setQrCodeVisible(false);
     const roomSettings = await handleRoomSettings(route.params.roomId);
@@ -109,18 +110,19 @@ const CreatedRoomScreen = () => {
     console.log(totalQuestions);
     // Check if there are remaining questions
     setTimer(time);
-    handleTimer(time);
+    await handleTimer(time);
     await handleQuestions(route.params.roomId, time);
     setElapsedTime(time); // Initialize elapsedTime to timer value
   };
 
   useEffect(() => {
-    if (timer > 0) {
+    if (timer > 0 && task != null) {
+      alert('hallo');
       handleTimer(timer);
     }
-  }, [timer]);
+  }, [timer, task]);
 
-  const handleTimer = (timer: number) => {
+  const handleTimer = async (timer: number) => {
     if (intervalId !== null) {
       clearInterval(intervalId);
     }
@@ -145,7 +147,7 @@ const CreatedRoomScreen = () => {
             setElapsedTime(timer);
             handleTimer(timer);
           } else {
-            alert('done');
+            alert('');
           }
           clearInterval(newIntervalId);
           return prevElapsedTime;
@@ -154,7 +156,6 @@ const CreatedRoomScreen = () => {
     }, 1000);
     setIntervalId(newIntervalId);
   };
-
   useEffect(() => {
     return () => {
       if (intervalId !== null) {
