@@ -12,7 +12,7 @@ import { NavigationProp, ParamListBase } from '@react-navigation/native';
 export const handleCreateRoom = async (
   user: User | null,
   time: number,
-  questions: string,
+  questions: number,
   navigation: NavigationProp<ParamListBase, 'CreatedRoomScreen'>
 ) => {
   const db = getFirestore();

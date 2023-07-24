@@ -98,15 +98,16 @@ const CreatedRoomScreen = () => {
   const [elapsedTime, setElapsedTime] = useState<number | null>(null);
   const [intervalId, setIntervalId] = useState<number | null>(null);
   const [questionsAsked, setQuestionsAsked] = useState(0);
-  const [totalQuestions, setTotalQuestions] = useState(6);
+  const [totalQuestions, setTotalQuestions] = useState<number | null>(null);
   const handleStartPressed = async () => {
     setQrCodeVisible(false);
     const roomSettings = await handleRoomSettings(route.params.roomId);
     const time = roomSettings?.quizItems[0]?.time;
     const questions = roomSettings?.questions;
+    console.log(typeof questions);
     setTotalQuestions(questions);
+    console.log(totalQuestions);
     // Check if there are remaining questions
-    setQuestionsAsked(0);
     setTimer(time);
     handleTimer(time);
     await handleQuestions(route.params.roomId, time);
@@ -128,11 +129,16 @@ const CreatedRoomScreen = () => {
         if (
           typeof prevElapsedTime === 'number' &&
           prevElapsedTime > 0 &&
+          typeof totalQuestions === 'number' &&
           questionsAsked < totalQuestions
         ) {
           return prevElapsedTime - 1;
         } else {
-          if (prevElapsedTime == 0 && questionsAsked < totalQuestions) {
+          if (
+            prevElapsedTime == 0 &&
+            typeof totalQuestions === 'number' &&
+            questionsAsked < totalQuestions
+          ) {
             handleQuestions(route.params.roomId, timer);
             setQuestionsAsked((prevQuestionsAsked) => prevQuestionsAsked + 1);
             console.log(questionsAsked, totalQuestions);
