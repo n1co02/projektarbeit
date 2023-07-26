@@ -93,7 +93,7 @@ const CreatedRoomScreen = () => {
   const [timer, setTimer] = useState(route.params.time);
   const [elapsedTime, setElapsedTime] = useState<number | null>(null);
   const [intervalId, setIntervalId] = useState<number | null>(null);
-  const [questionsAsked, setQuestionsAsked] = useState(0);
+  let questionsAsked = 0;
   const totalQuestions = route.params.questions;
   const handleStartPressed = async () => {
     setQrCodeVisible(false);
@@ -130,11 +130,11 @@ const CreatedRoomScreen = () => {
             questionsAsked < totalQuestions
           ) {
             handleQuestions(route.params.roomId, timer);
-            setQuestionsAsked((prevQuestionsAsked) => prevQuestionsAsked + 1);
+            questionsAsked++;
             setElapsedTime(timer);
             handleTimer(timer);
           } else {
-            alert('');
+            const score = joinedUsers;
           }
           clearInterval(newIntervalId);
           return prevElapsedTime;

@@ -50,7 +50,7 @@ export const handleQuestions = async (roomId: string, timer: number) => {
       const updatedQuizItem = {
         question: randomDocument?.english || '', // Update with the English field from randomDocument, if available
         answer: randomDocument?.german || '', // Update with the German field from randomDocument, if available
-        timer: timer,
+        time: timer,
       };
       const roomData = roomSnapshot.data();
       const quizItemsArray = roomData?.quizItems || [];
@@ -69,5 +69,18 @@ export const handleRoomSettings = async (roomId: string) => {
   if (docSnapshot.exists()) {
     const randomDocument = docSnapshot.data();
     return randomDocument;
+  }
+};
+export const fetchRoomData = async (roomId: string) => {
+  try {
+    const docRef = doc(db, 'rooms', roomId);
+    const docSnapshot = await getDoc(docRef);
+    if (docSnapshot.exists()) {
+      const randomDocument = docSnapshot.data();
+      return randomDocument;
+    }
+  } catch (error) {
+    alert(error);
+    console.error(error);
   }
 };
