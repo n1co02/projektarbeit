@@ -3,10 +3,10 @@ import { Text, TouchableOpacity, View, Alert } from 'react-native';
 import { useRoute, RouteProp, useNavigation } from '@react-navigation/native';
 import { createdRoomStyles } from '../../../styles/CreatedRoomStyles';
 import QRCode from 'react-native-qrcode-svg';
-import { leaveRoom } from '../../../components/openedRoomComponent';
+import { leaveRoom } from '../../../components/CreatedRoomScreenComponent';
 import UserContext from '../../../components/UserContext';
 import { getFirestore, doc, getDoc, onSnapshot } from 'firebase/firestore';
-import { handleQuestions } from '../../../components/openedRoomComponent';
+import { handleQuestions } from '../../../components/CreatedRoomScreenComponent';
 type StackParamList = {
   CreatedRoomScreen: { roomId: string; questions: number; time: number };
 };
@@ -181,32 +181,33 @@ const CreatedRoomScreen = () => {
   }, [route.params.roomId]);
   return (
     <View style={createdRoomStyles.container}>
-      <Text>Timer: {elapsedTime}</Text>
-
       <TouchableOpacity
-        style={createdRoomStyles.submitButton}
+        style={createdRoomStyles.closeButton}
         disabled={isLeaving}
         onPress={handleLeaveRoom}
       >
-        <Text style={createdRoomStyles.submitText}>Close Room</Text>
+        <Text style={createdRoomStyles.closeButtonText}>Close Room</Text>
       </TouchableOpacity>
       {qrCodeVisible && (
-        <TouchableOpacity
-          style={createdRoomStyles.submitButton}
-          onPress={handleStartPressed}
-        >
-          <Text style={createdRoomStyles.submitText}>Start</Text>
-        </TouchableOpacity>
+        <View style={createdRoomStyles.qrCodeContainer}>
+          <Text style={createdRoomStyles.heading}>
+            Scan QR Code to join Room
+          </Text>
+          <QRCode value={qrCodeValue} size={200} />
+        </View>
       )}
+
+      <Text style={createdRoomStyles.timer}>Timer: {elapsedTime}</Text>
+
       {task && (
         <>
-          <Text>Frage: {task.english}</Text>
-          <Text>Antwort: {task.german}</Text>
+          <Text style={createdRoomStyles.question}>Frage: {task.english}</Text>
+          <Text style={createdRoomStyles.question}>Antwort: {task.german}</Text>
         </>
       )}
-      {/* Display the joinedUsers */}
+
       <View>
-        <Text>Joined Users:</Text>
+        <Text style={createdRoomStyles.subHeading}>Joined Users:</Text>
         {joinedUsers.map((user) => (
           <View key={user.id}>
             <Text>Username: {user.username}</Text>
@@ -215,14 +216,12 @@ const CreatedRoomScreen = () => {
       </View>
 
       {qrCodeVisible && (
-        <View>
-          <Text style={createdRoomStyles.heading}>
-            Scan QR Code to join Room
-          </Text>
-          <View style={createdRoomStyles.qrCodeContainer}>
-            <QRCode value={qrCodeValue} size={200} />
-          </View>
-        </View>
+        <TouchableOpacity
+          style={createdRoomStyles.submitButton}
+          onPress={handleStartPressed}
+        >
+          <Text style={createdRoomStyles.submitText}>Start</Text>
+        </TouchableOpacity>
       )}
     </View>
   );

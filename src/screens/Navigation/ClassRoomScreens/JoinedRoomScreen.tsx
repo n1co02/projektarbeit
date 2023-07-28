@@ -1,11 +1,12 @@
-import React, { useEffect, useState } from 'react';
-import { Text, View, TextInput, Button } from 'react-native';
-import { createdRoomStyles } from '../../../styles/CreatedRoomStyles';
+import React, { useContext, useEffect, useState } from 'react';
+import { Text, View, TextInput, Button, TouchableOpacity } from 'react-native';
 import { useRoute, RouteProp, useNavigation } from '@react-navigation/native';
 import { NavigationProp } from '@react-navigation/native';
 
 import { DocumentData, doc, getDoc, getFirestore } from 'firebase/firestore';
-
+import UserContext from '../../../components/UserContext';
+import { answerSubmit } from '../../../components/joinedRoomComponents';
+import { joinedRoomStyles } from '../../../styles/joinedRoomStyles';
 type StackParamList = {
   CreatedRoomScreen: { roomId: string };
 };
@@ -24,6 +25,10 @@ const JoinedRoomScreen = () => {
   const [task, setTask] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const [leave, setLeave] = useState(false);
+  const userContext = useContext(UserContext);
+  const [isDisabled, setIsDisabled] = useState(true);
+  const [totalQuestions, setTotalQuestions] = useState(1);
+  let questionsAsked = 0;
   const fetchRoomDataAsync = async (
     navigation: NavigationProp<ReactNavigation.RootParamList>
   ) => {
@@ -35,6 +40,7 @@ const JoinedRoomScreen = () => {
       const roomData = roomSnapshot.data();
       if (time == null) {
         setTime(roomData.quizItems[0].time);
+        setTotalQuestions(roomData.questions);
         //setElapsedTime(roomData.quizItems[0].time);
       }
       const roomDataArray = roomData || [];
@@ -64,10 +70,15 @@ const JoinedRoomScreen = () => {
     }
     const newIntervalId = window.setInterval(() => {
       setElapsedTime((prevElapsedTime) => {
-        if (typeof prevElapsedTime === 'number' && prevElapsedTime > 0) {
+        if (
+          typeof prevElapsedTime === 'number' &&
+          prevElapsedTime > 0 &&
+          questionsAsked < totalQuestions
+        ) {
           return prevElapsedTime - 1;
         } else {
           if (time != null) {
+            questionsAsked++;
             setElapsedTime(time);
             handleTimer(time); // Reset the elapsed time to the initial timer value
           }
@@ -87,6 +98,7 @@ const JoinedRoomScreen = () => {
       task != '' &&
       elapsedTime == 0
     ) {
+      setIsDisabled(false);
       setElapsedTime(time);
       handleTimer(time);
     }
@@ -98,37 +110,53 @@ const JoinedRoomScreen = () => {
       }
     };
   }, [intervalId]);
+  if (!userContext || !userContext.user) {
+    return null;
+  }
+  const { user } = userContext;
+  const handleAnswerSubmit = async () => {
+    setIsDisabled(true);
+    const checkAnswer = await answerSubmit(
+      userAnswer,
+      roomData?.quizItems[0].answer,
+      user,
+      route.params.roomId
+    );
+    console.log(checkAnswer);
+  };
   //const currentQuestion = roomData?.quizItems[0];
   if (!roomData) {
     // Room data is still loading or not available
     return <Text>Loading...</Text>;
   }
   return (
-    <View style={createdRoomStyles.container}>
-      <Text>Timer: {elapsedTime}</Text>
+    <View style={joinedRoomStyles.container}>
+      <Text style={joinedRoomStyles.timer}>Timer: {elapsedTime}</Text>
 
       {/* Display the current question */}
-      <Text>{task}</Text>
+      <Text style={joinedRoomStyles.question}>{task}</Text>
 
       {/* User input field to type in the answer */}
       <TextInput
+        style={joinedRoomStyles.answerInput}
         placeholder="Type your answer here"
         value={userAnswer}
         onChangeText={(text) => setUserAnswer(text)}
       />
 
       {/* Display the current score */}
-      <Text>Score: {roomData.joinedUsers[0].score}</Text>
+      <Text style={joinedRoomStyles.score}>
+        Score: {roomData.joinedUsers[0].score}
+      </Text>
 
       {/* Add a button to submit the answer */}
-      <Button
-        title="Submit Answer"
-        onPress={() => {
-          // Handle answer submission logic here
-          // For example, you can compare userAnswer with currentQuestion.answer
-          // and update the user's score accordingly.
-        }}
-      />
+      <TouchableOpacity
+        style={joinedRoomStyles.submitButton}
+        onPress={handleAnswerSubmit}
+        disabled={isDisabled}
+      >
+        <Text style={joinedRoomStyles.submitButtonText}>Submit answer</Text>
+      </TouchableOpacity>
     </View>
   );
 };
