@@ -2,7 +2,11 @@ import { NavigationProp } from '@react-navigation/native';
 import {
   Auth,
   createUserWithEmailAndPassword,
+  getAuth,
+  sendEmailVerification,
+  sendPasswordResetEmail,
   signInWithEmailAndPassword,
+  signOut,
 } from 'firebase/auth';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { getFirestore } from 'firebase/firestore';
@@ -27,16 +31,23 @@ export const handleLogin = async (
       email,
       password
     );
+
     if (userCredential.user) {
+      const isEmailVerified = userCredential.user.emailVerified;
+      if (!isEmailVerified) {
+        alert('Please verify your email before logging in.');
+        return; // Return early if email is not verified
+      }
+
       const docRef = doc(db, 'users', userCredential.user.uid);
       const docSnap = await getDoc(docRef);
 
       if (docSnap.exists()) {
         const username = docSnap.data().username;
-        setUser({ id: userCredential.user.uid, username });
+        setUser({ id: userCredential.user.uid, username, email: email });
       }
 
-      // If the user exists, navigate to the Home screen.
+      // If the user exists and email is verified, navigate to the Home screen.
       navigation.navigate('bottomNavBar' as never);
     }
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -59,10 +70,6 @@ export const handleLogin = async (
   }
 };
 
-export const forgotPassword = () => {
-  alert('seems like a you problem');
-};
-
 //registration
 export const handleRegistration = async (
   auth: Auth,
@@ -70,10 +77,6 @@ export const handleRegistration = async (
   password: string,
   username: string,
   db: ReturnType<typeof getFirestore>,
-  setUser: {
-    (value: SetStateAction<User | null>): void;
-    (arg0: { id: string; username: string }): void;
-  },
   navigation: NavigationProp<ReactNavigation.RootParamList>
 ) => {
   try {
@@ -84,9 +87,8 @@ export const handleRegistration = async (
     );
     const user = userCredential.user;
     await setDoc(doc(db, 'users', user.uid), { username: username });
-    setUser({ id: user.uid, username: username });
-    navigation.navigate('bottomNavBar' as never);
-
+    await sendEmailVerification(userCredential.user);
+    navigation.navigate('Login' as never);
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (error: any) {
     console.log(error);
@@ -104,5 +106,34 @@ export const handleRegistration = async (
     }
     console.log(errorMessage);
     alert(errorMessage);
+  }
+};
+export const handleLogout = async (
+  navigation: NavigationProp<ReactNavigation.RootParamList>
+) => {
+  const auth = getAuth();
+  signOut(auth)
+    .then(() => {
+      navigation.navigate('Login' as never);
+    })
+    .catch((error) => {
+      console.error(error);
+    });
+};
+export const handleChangePassword = async (
+  navigation: NavigationProp<ReactNavigation.RootParamList>,
+  email: string | undefined
+) => {
+  try {
+    const auth = getAuth();
+
+    // Send a password reset email to   the provided email address
+    if (email != undefined) {
+      await sendPasswordResetEmail(auth, email);
+      navigation.navigate('Login' as never);
+      alert('Password reset email sent successfully!');
+    }
+  } catch (error) {
+    console.error('Error sending password reset email:', error);
   }
 };

@@ -3,7 +3,7 @@ import { createContext, Dispatch, SetStateAction } from 'react';
 export interface User {
   id: string;
   username?: string;
-  // add any other fields you need
+  email?: string;
 }
 
 interface UserContextProps {

@@ -44,7 +44,9 @@ const HomeScreen = () => {
       setIsLoading
     );
   };
-
+  const nextQuestionCall = () => {
+    fetchData(setData, setIsLoading);
+  };
   if (!userContext || !userContext.user) {
     return null;
   }
@@ -85,6 +87,14 @@ const HomeScreen = () => {
         {!isCorrect && isStarted && (
           <Text style={styles.incorrectText}>Incorrect! Try again.</Text>
         )}
+        <TouchableOpacity
+          style={styles.submitButton}
+          onPress={nextQuestionCall}
+        >
+          <Text style={[styles.submitText, { fontSize: 14 }]}>
+            Task too hard? Go to the next question!
+          </Text>
+        </TouchableOpacity>
       </KeyboardAvoidingView>
     </SafeAreaView>
   );

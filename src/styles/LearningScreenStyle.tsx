@@ -67,7 +67,7 @@ const styles = StyleSheet.create({
   submitText: {
     color: 'white',
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: '500',
   },
 });
 

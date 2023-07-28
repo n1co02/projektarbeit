@@ -12,7 +12,6 @@ import { styles } from '../../styles/AuthStyles';
 import { getAuth } from 'firebase/auth';
 import firebase from '../../config/firebase';
 import { db } from '../../config/firebase';
-import UserContext from '../../components/UserContext';
 import useQuoteOfTheDay from '../../components/useQuoteOfTheDay';
 import { handleRegistration } from '../../components/authComponent';
 const RegistrationScreen = () => {
@@ -24,25 +23,10 @@ const RegistrationScreen = () => {
   const auth = getAuth(firebase);
   const [isLoading, setIsLoading] = useState(false); // New state variable for loading
 
-  const userContext = useContext(UserContext);
-  const setUser = userContext
-    ? userContext.setUser
-    : () => {
-        throw new Error('UserContext is not initialized');
-      };
-
   const quote = useQuoteOfTheDay();
   const handleRegistrationPress = async () => {
     setIsLoading(true);
-    await handleRegistration(
-      auth,
-      email,
-      password,
-      username,
-      db,
-      setUser,
-      navigation
-    );
+    await handleRegistration(auth, email, password, username, db, navigation);
     setIsLoading(false);
   };
   return (
