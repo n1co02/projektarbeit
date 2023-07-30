@@ -8,6 +8,7 @@ import {
   updateDoc,
 } from 'firebase/firestore';
 import { db } from '../config/firebase';
+import { useEffect, useState } from 'react';
 
 export const leaveRoom = async (
   roomId: string,

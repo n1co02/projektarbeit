@@ -1,9 +1,10 @@
 import React, { useContext, useState, useEffect } from 'react';
-import { Text, TouchableOpacity, View, Alert } from 'react-native';
+import { Text, TouchableOpacity, View, Alert, Modal } from 'react-native';
 import { useRoute, RouteProp, useNavigation } from '@react-navigation/native';
 import { createdRoomStyles } from '../../../styles/CreatedRoomStyles';
 import QRCode from 'react-native-qrcode-svg';
 import { leaveRoom } from '../../../components/CreatedRoomScreenComponent';
+import { useTimer } from '../../../hooks/timerHook';
 import UserContext from '../../../components/UserContext';
 import { getFirestore, doc, getDoc, onSnapshot } from 'firebase/firestore';
 import { handleQuestions } from '../../../components/CreatedRoomScreenComponent';
@@ -16,16 +17,25 @@ type CreatedRoomScreenRouteProp = RouteProp<
   'CreatedRoomScreen'
 >;
 
+/* Bitte ordnung in den screen bringend, states & methoden & useEffects sind komplett durcheinander */
 const CreatedRoomScreen = () => {
   const userContext = useContext(UserContext);
-
   const navigation = useNavigation();
   const [isLeaving, setIsLeaving] = useState(false);
   const [joinedUsers, setJoinedUsers] = useState<
     { id: string; username: string; score: number }[]
   >([]);
+
+  const route = useRoute<CreatedRoomScreenRouteProp>();
+  const qrCodeValue = route.params.roomId;
+  const [qrCodeVisible, setQrCodeVisible] = useState(true);
+  const [task, setTask] = useState<{ english: string; german: string } | null>(
+    null
+  );
+  const [timer, setTimer] = useState(route.params.time);
+
   const handleLeaveRoom = async () => {
-    setQrCodeVisible(false);
+    //setQrCodeVisible(false);
     setIsLeaving(true);
     Alert.alert(
       'Confirmation',
@@ -36,7 +46,7 @@ const CreatedRoomScreen = () => {
           style: 'cancel',
           onPress: () => {
             setIsLeaving(false);
-            setQrCodeVisible(true);
+            //setQrCodeVisible(true);
           },
         },
         {
@@ -49,7 +59,7 @@ const CreatedRoomScreen = () => {
                 navigation
               );
             }
-            setIsLeaving(false);
+            //setIsLeaving(false);
           },
         },
       ],
@@ -57,11 +67,11 @@ const CreatedRoomScreen = () => {
     );
   };
 
-  const route = useRoute<CreatedRoomScreenRouteProp>();
-  const qrCodeValue = route.params.roomId;
-  const [qrCodeVisible, setQrCodeVisible] = useState(true);
   // Function to fetch the joinedUsers from the database
   const fetchJoinedUsers = async () => {
+    /* 
+    Warum hier nicht auch ein realtime listener auf die joined users
+     */
     try {
       const db = getFirestore();
       const docRef = doc(db, 'rooms', route.params.roomId);
@@ -81,81 +91,29 @@ const CreatedRoomScreen = () => {
 
   // Fetch the joinedUsers data when the component mounts or when the roomId changes
   useEffect(() => {
-    if (qrCodeVisible) {
+    if (qrCodeVisible && !isLeaving) {
       fetchJoinedUsers();
     }
   });
 
   //check if bugss
-  const [task, setTask] = useState<{ english: string; german: string } | null>(
-    null
+
+  const { elapsedTime, isFinished, startTimer } = useTimer(
+    route.params.time,
+    route.params.questions,
+    async () => {
+      handleQuestions(route.params.roomId, timer);
+    }
   );
-  const [timer, setTimer] = useState(route.params.time);
-  const [elapsedTime, setElapsedTime] = useState<number | null>(null);
-  const [intervalId, setIntervalId] = useState<number | null>(null);
-  let questionsAsked = 0;
-  const totalQuestions = route.params.questions;
-  const handleStartPressed = async () => {
+  const handleStartPressed = () => {
     setQrCodeVisible(false);
-
-    // Check if there are remaining questions
-    await handleTimer(timer);
-    await handleQuestions(route.params.roomId, timer);
-    setElapsedTime(timer); // Initialize elapsedTime to timer value
+    startTimer(); // Start the timer
   };
-
-  useEffect(() => {
-    if (timer > 0 && qrCodeVisible == false) {
-      handleTimer(timer);
-    }
-  }, [timer]);
-
-  const handleTimer = async (timer: number) => {
-    if (intervalId !== null) {
-      clearInterval(intervalId);
-    }
-    const newIntervalId = window.setInterval(() => {
-      setElapsedTime((prevElapsedTime) => {
-        if (
-          typeof prevElapsedTime === 'number' &&
-          prevElapsedTime > 0 &&
-          typeof totalQuestions === 'number' &&
-          questionsAsked < totalQuestions
-        ) {
-          return prevElapsedTime - 1;
-        } else {
-          if (
-            prevElapsedTime == 0 &&
-            typeof totalQuestions === 'number' &&
-            questionsAsked < totalQuestions
-          ) {
-            handleQuestions(route.params.roomId, timer);
-            questionsAsked++;
-            setElapsedTime(timer);
-            handleTimer(timer);
-          } else {
-            const score = joinedUsers;
-          }
-          clearInterval(newIntervalId);
-          return prevElapsedTime;
-        }
-      });
-    }, 1000);
-    setIntervalId(newIntervalId);
-  };
-  useEffect(() => {
-    return () => {
-      if (intervalId !== null) {
-        clearInterval(intervalId);
-      }
-    };
-  }, [intervalId]);
 
   const handleQuizItemsUpdate = (snapshot: any) => {
     const roomData = snapshot.data();
     const quizItemsArray = roomData?.quizItems || [];
 
-    // Check if there is a task in the updated quizItems array
     if (quizItemsArray.length > 0) {
       const updatedTask = quizItemsArray[0];
       setTimer(updatedTask?.time);
@@ -223,6 +181,17 @@ const CreatedRoomScreen = () => {
           <Text style={createdRoomStyles.submitText}>Start</Text>
         </TouchableOpacity>
       )}
+
+      <Modal animationType="slide" transparent={false} visible={isFinished}>
+        <Text style={createdRoomStyles.subHeading}>Scores</Text>
+        {joinedUsers.map((user) => (
+          <View key={user.id}>
+            <Text>
+              Username: {user.username} Score: {user.score}
+            </Text>
+          </View>
+        ))}
+      </Modal>
     </View>
   );
 };

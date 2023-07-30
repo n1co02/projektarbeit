@@ -64,6 +64,7 @@ const JoinedRoomScreen = () => {
   });
   const [elapsedTime, setElapsedTime] = useState(0);
   const [intervalId, setIntervalId] = useState<number | null>(null);
+  /* Timer gleiche wie bei CreatedRoom */
   const handleTimer = async (timer: number | null) => {
     if (intervalId !== null) {
       clearInterval(intervalId);

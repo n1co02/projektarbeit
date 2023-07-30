@@ -1,4 +1,3 @@
-import { StatusBar } from 'expo-status-bar';
 import React, { useState, useContext } from 'react';
 import {
   Text,
@@ -136,7 +135,6 @@ const LoginScreen = () => {
         <Text style={styles.quoteAuthor}>- {quote.author}</Text>
       </View>
 
-      <StatusBar style="auto" />
       <Modal
         visible={isForgotPasswordModalVisible}
         animationType="slide"

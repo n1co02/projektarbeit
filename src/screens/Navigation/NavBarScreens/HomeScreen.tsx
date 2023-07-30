@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useState } from 'react';
 import {
   SafeAreaView,
   ActivityIndicator,
@@ -8,25 +8,21 @@ import {
 } from 'react-native';
 import { Text, View } from 'react-native';
 import UserContext from '../../../components/UserContext';
-import { DocumentData } from 'firebase/firestore';
 import { styles } from '../../../styles/LearningScreenStyle';
 import {
-  fetchData,
   handleAnswerChange,
   handleAnswerSubmit,
+  useData,
 } from '../../../components/LearningScreenComponent';
 //import { setNavBarScreen } from '../../../components/navBarComponent';
 const HomeScreen = () => {
   const userContext = useContext(UserContext);
-  const [data, setData] = useState<DocumentData | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const { data, isLoading, fetchData } = useData();
+
   const [answer, setAnswer] = useState('');
   const [isCorrect, setIsCorrect] = useState(false);
-  const [isStarted, setIsStarted] = useState(false);
+  const [isTouched, setIsTouched] = useState(false);
 
-  useEffect(() => {
-    fetchData(setData, setIsLoading);
-  }, []);
   //setNavBarScreen(setActiveScreen);
   const handleAnswerChangeCall = (text: string) => {
     handleAnswerChange(text, setAnswer);
@@ -34,19 +30,24 @@ const HomeScreen = () => {
 
   const handleAnswerSubmitCall = () => {
     console.log(data);
-    handleAnswerSubmit(
-      data,
-      answer,
-      setIsStarted,
-      setIsCorrect,
-      setAnswer,
-      setData,
-      setIsLoading
-    );
+    setIsTouched(true);
+
+    const isAnswerCorrect = handleAnswerSubmit(data, answer);
+    setIsCorrect(isAnswerCorrect);
+
+    if (isAnswerCorrect) {
+      fetchData();
+      setIsTouched(false);
+      setAnswer('');
+    }
   };
+
   const nextQuestionCall = () => {
-    fetchData(setData, setIsLoading);
+    fetchData();
+    setIsTouched(false);
+    setAnswer('');
   };
+
   if (!userContext || !userContext.user) {
     return null;
   }
@@ -84,7 +85,7 @@ const HomeScreen = () => {
           <Text style={styles.submitText}>Submit</Text>
         </TouchableOpacity>
         {isCorrect && <Text style={styles.correctText}>Correct!</Text>}
-        {!isCorrect && isStarted && (
+        {!isCorrect && isTouched && (
           <Text style={styles.incorrectText}>Incorrect! Try again.</Text>
         )}
         <TouchableOpacity

@@ -1,4 +1,3 @@
-import { StatusBar } from 'expo-status-bar';
 import React, { useContext, useState } from 'react';
 import {
   Text,
@@ -6,6 +5,7 @@ import {
   View,
   TouchableOpacity,
   ActivityIndicator,
+  ScrollView,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { styles } from '../../styles/AuthStyles';
@@ -30,7 +30,7 @@ const RegistrationScreen = () => {
     setIsLoading(false);
   };
   return (
-    <View style={styles.container}>
+    <ScrollView contentContainerStyle={styles.container}>
       <Text style={styles.welcome}>Create an account</Text>
 
       <View style={styles.inputContainer}>
@@ -88,8 +88,7 @@ const RegistrationScreen = () => {
         <Text style={styles.quoteText}>{quote.text}</Text>
         <Text style={styles.quoteAuthor}>- {quote.author}</Text>
       </View>
-      <StatusBar style="auto" />
-    </View>
+    </ScrollView>
   );
 };
 
