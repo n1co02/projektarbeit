@@ -14,7 +14,7 @@ import UserContext from '../../../components/UserContext';
 import { styles } from '../../../styles/LearningScreenStyle';
 import { modalStyles } from '../../../styles/ModalStyles';
 import { pickerStyles } from '../../../styles/pickerStyles';
-import { Picker } from '@react-native-picker/picker';
+import RNPickerSelect from 'react-native-picker-select';
 import { handleCreateRoom } from '../../../components/ClassRoomComponent';
 import {
   NavigationProp,
@@ -146,33 +146,29 @@ const ClassRoomScreen = () => {
                 Select number of questions
               </Text>
 
-              {/* Dropdown for "Anzahl Fragen" */}
-              <Picker
-                selectedValue={selectedQuestions}
-                onValueChange={(itemValue) => setSelectedQuestions(itemValue)}
-                style={pickerStyles.picker}
-                itemStyle={pickerStyles.pickerItem}
-              >
-                <Picker.Item label="5" value="5" />
-                <Picker.Item label="10" value="10" />
-                <Picker.Item label="15" value="15" />
-              </Picker>
-              {/* Dropdown for "Time to Answer" */}
+              <RNPickerSelect
+                onValueChange={(value) => setSelectedQuestions(value)}
+                items={[
+                  { label: '5', value: '5' },
+                  { label: '10', value: '10' },
+                  { label: '15', value: '15' },
+                ]}
+              />
+
               <Text>Select time for questions</Text>
-              <Picker
-                selectedValue={selectedTime}
-                onValueChange={(itemValue) => setSelectedTime(itemValue)}
-                style={pickerStyles.picker}
-                itemStyle={pickerStyles.pickerItem}
-              >
-                <Picker.Item label="15 seconds" value="15" />
-                <Picker.Item label="30 seconds" value="30" />
-                <Picker.Item label="60 seconds" value="60" />
-              </Picker>
+              <RNPickerSelect
+                onValueChange={(value) => setSelectedTime(value)}
+                items={[
+                  { label: '15 seconds', value: '15' },
+                  { label: '30 seconds', value: '30' },
+                  { label: '60 seconds', value: '60' },
+                ]}
+              />
+
               <TouchableOpacity
                 style={modalStyles.closeButton}
                 onPress={handleCreateRoomPress}
-                disabled={isLoading} // Disable button while loading
+                disabled={isLoading}
               >
                 <Text style={modalStyles.textStyle}>Create Classroom</Text>
               </TouchableOpacity>

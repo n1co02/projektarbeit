@@ -8,9 +8,10 @@ import {
   updateDoc,
 } from 'firebase/firestore';
 import { db } from '../config/firebase';
-import { useEffect, useState } from 'react';
+import { Alert } from 'react-native';
+import { useState } from 'react';
 
-export const leaveRoom = async (
+const leaveRoom = async (
   roomId: string,
   user: User | null,
   navigation: NavigationProp<ReactNavigation.RootParamList>
@@ -35,6 +36,36 @@ export const leaveRoom = async (
   } catch (error) {
     console.error('Error fetching room data:', error);
   }
+};
+export const confirmLeaveRoom = async (
+  roomId: string,
+  user: User | null,
+  navigation: NavigationProp<ReactNavigation.RootParamList>
+) => {
+  Alert.alert(
+    'Confirmation',
+    "If you close the Room, it'll get deleted",
+    [
+      {
+        text: 'Cancel',
+        style: 'cancel',
+        onPress: () => {
+          return false;
+          //setQrCodeVisible(true);
+        },
+      },
+      {
+        text: 'OK',
+        onPress: async () => {
+          if (user !== null) {
+            await leaveRoom(roomId, user, navigation);
+          }
+          //setIsLeaving(false);
+        },
+      },
+    ],
+    { cancelable: false }
+  );
 };
 ///check if bugs
 export const handleQuestions = async (roomId: string, timer: number) => {
@@ -72,16 +103,24 @@ export const handleRoomSettings = async (roomId: string) => {
     return randomDocument;
   }
 };
-export const fetchRoomData = async (roomId: string) => {
+
+export const fetchJoinedUsers = async (roomId: string) => {
+  /* 
+    Warum hier nicht auch ein realtime listener auf die joined users
+     */
   try {
+    const db = getFirestore();
     const docRef = doc(db, 'rooms', roomId);
-    const docSnapshot = await getDoc(docRef);
-    if (docSnapshot.exists()) {
-      const randomDocument = docSnapshot.data();
-      return randomDocument;
+    const roomSnapshot = await getDoc(docRef);
+
+    if (roomSnapshot.exists()) {
+      const roomData = roomSnapshot.data();
+      const joinedUsersArray = roomData?.joinedUsers || [];
+      return joinedUsersArray;
+    } else {
+      console.error('Room not found');
     }
   } catch (error) {
-    alert(error);
-    console.error(error);
+    console.error('Error fetching joinedUsers:', error);
   }
 };

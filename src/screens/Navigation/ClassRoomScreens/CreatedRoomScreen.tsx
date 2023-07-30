@@ -1,13 +1,17 @@
 import React, { useContext, useState, useEffect } from 'react';
-import { Text, TouchableOpacity, View, Alert, Modal } from 'react-native';
+import { Text, TouchableOpacity, View, Modal } from 'react-native';
 import { useRoute, RouteProp, useNavigation } from '@react-navigation/native';
 import { createdRoomStyles } from '../../../styles/CreatedRoomStyles';
 import QRCode from 'react-native-qrcode-svg';
-import { leaveRoom } from '../../../components/CreatedRoomScreenComponent';
-import { useTimer } from '../../../hooks/timerHook';
+import {
+  fetchJoinedUsers,
+  confirmLeaveRoom,
+} from '../../../components/CreatedRoomScreenComponent';
+import { useTimer } from '../../../hooks/useTimerHook';
 import UserContext from '../../../components/UserContext';
-import { getFirestore, doc, getDoc, onSnapshot } from 'firebase/firestore';
+import { getFirestore, doc, onSnapshot } from 'firebase/firestore';
 import { handleQuestions } from '../../../components/CreatedRoomScreenComponent';
+import { scoreTable } from '../../../styles/scoreTable';
 type StackParamList = {
   CreatedRoomScreen: { roomId: string; questions: number; time: number };
 };
@@ -33,66 +37,26 @@ const CreatedRoomScreen = () => {
     null
   );
   const [timer, setTimer] = useState(route.params.time);
-
+  if (!userContext || !userContext.user) {
+    return null;
+  }
+  const { user } = userContext;
   const handleLeaveRoom = async () => {
     //setQrCodeVisible(false);
     setIsLeaving(true);
-    Alert.alert(
-      'Confirmation',
-      "If you close the Room, it'll get deleted",
-      [
-        {
-          text: 'Cancel',
-          style: 'cancel',
-          onPress: () => {
-            setIsLeaving(false);
-            //setQrCodeVisible(true);
-          },
-        },
-        {
-          text: 'OK',
-          onPress: async () => {
-            if (userContext !== null) {
-              await leaveRoom(
-                route.params.roomId,
-                userContext.user,
-                navigation
-              );
-            }
-            //setIsLeaving(false);
-          },
-        },
-      ],
-      { cancelable: false }
-    );
+    await confirmLeaveRoom(route.params.roomId, user, navigation);
   };
 
   // Function to fetch the joinedUsers from the database
-  const fetchJoinedUsers = async () => {
-    /* 
-    Warum hier nicht auch ein realtime listener auf die joined users
-     */
-    try {
-      const db = getFirestore();
-      const docRef = doc(db, 'rooms', route.params.roomId);
-      const roomSnapshot = await getDoc(docRef);
-
-      if (roomSnapshot.exists()) {
-        const roomData = roomSnapshot.data();
-        const joinedUsersArray = roomData?.joinedUsers || [];
-        setJoinedUsers(joinedUsersArray);
-      } else {
-        console.error('Room not found');
-      }
-    } catch (error) {
-      console.error('Error fetching joinedUsers:', error);
-    }
+  const fetchJoinedUsersCall = async () => {
+    const joinedUsersArray = await fetchJoinedUsers(route.params.roomId);
+    setJoinedUsers(joinedUsersArray);
   };
 
   // Fetch the joinedUsers data when the component mounts or when the roomId changes
   useEffect(() => {
-    if (qrCodeVisible && !isLeaving) {
-      fetchJoinedUsers();
+    if ((qrCodeVisible && !isLeaving) || (!isLeaving && isFinished)) {
+      fetchJoinedUsersCall();
     }
   });
 
@@ -108,6 +72,7 @@ const CreatedRoomScreen = () => {
   const handleStartPressed = () => {
     setQrCodeVisible(false);
     startTimer(); // Start the timer
+    handleQuestions(route.params.roomId, timer);
   };
 
   const handleQuizItemsUpdate = (snapshot: any) => {
@@ -182,15 +147,26 @@ const CreatedRoomScreen = () => {
         </TouchableOpacity>
       )}
 
-      <Modal animationType="slide" transparent={false} visible={isFinished}>
-        <Text style={createdRoomStyles.subHeading}>Scores</Text>
-        {joinedUsers.map((user) => (
-          <View key={user.id}>
-            <Text>
-              Username: {user.username} Score: {user.score}
-            </Text>
+      <Modal animationType="slide" transparent={true} visible={isFinished}>
+        <View style={scoreTable.modalContainer}>
+          <View style={scoreTable.contentContainer}>
+            <Text style={scoreTable.tableHeader}>Scores</Text>
+            {joinedUsers.map((user) => (
+              <View key={user.id} style={scoreTable.tableRow}>
+                <Text style={scoreTable.userName}>{user.username + ' '}</Text>
+                <Text style={scoreTable.userScore}>
+                  Score: {' ' + user.score}
+                </Text>
+              </View>
+            ))}
+            <TouchableOpacity
+              onPress={handleLeaveRoom}
+              style={scoreTable.closeButton}
+            >
+              <Text style={scoreTable.closeButtonText}>Close</Text>
+            </TouchableOpacity>
           </View>
-        ))}
+        </View>
       </Modal>
     </View>
   );

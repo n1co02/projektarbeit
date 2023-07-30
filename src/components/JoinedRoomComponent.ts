@@ -1,13 +1,7 @@
 import { NavigationProp } from '@react-navigation/native';
 import { User } from './UserContext';
-import {
-  deleteDoc,
-  doc,
-  getDoc,
-  getFirestore,
-  updateDoc,
-} from 'firebase/firestore';
-import { db } from '../config/firebase';
+import { doc, getDoc, getFirestore, updateDoc } from 'firebase/firestore';
+import { SetStateAction } from 'react';
 export const answerSubmit = async (
   solution: string,
   answer: string,
@@ -42,5 +36,36 @@ export const answerSubmit = async (
       return false;
       // Save the updated joinedUsers array back to Firestore
     }
+  }
+};
+export const fetchRoomData = async (
+  navigation: NavigationProp<ReactNavigation.RootParamList>,
+  roomId: string,
+  time: number | null,
+  setTime: { (value: SetStateAction<number | null>): void; (arg0: any): void },
+  setTotalQuestions: {
+    (value: SetStateAction<number>): void;
+    (arg0: any): void;
+  },
+  setTask: { (value: SetStateAction<string>): void; (arg0: any): void },
+  setLeave: { (value: SetStateAction<boolean>): void; (arg0: boolean): void }
+) => {
+  const db = getFirestore();
+  const docRef = doc(db, 'rooms', roomId);
+  const roomSnapshot = await getDoc(docRef);
+  if (roomSnapshot.exists()) {
+    const roomData = roomSnapshot.data();
+    if (time == null) {
+      setTime(roomData.quizItems[0].time);
+      setTotalQuestions(roomData.questions);
+    }
+    const roomDataArray = roomData || [];
+    if (roomData.quizItems[0].question != '') {
+      setTask(roomData.quizItems[0].question);
+    }
+    return roomDataArray;
+  } else {
+    setLeave(true);
+    navigation.navigate('bottomNavBar' as never);
   }
 };

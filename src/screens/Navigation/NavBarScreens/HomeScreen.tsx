@@ -12,9 +12,8 @@ import { styles } from '../../../styles/LearningScreenStyle';
 import {
   handleAnswerChange,
   handleAnswerSubmit,
-  useData,
-} from '../../../components/LearningScreenComponent';
-//import { setNavBarScreen } from '../../../components/navBarComponent';
+} from '../../../components/HomeScreenComponent';
+import { useData } from '../../../hooks/useDataHook'; //import { setNavBarScreen } from '../../../components/navBarComponent';
 const HomeScreen = () => {
   const userContext = useContext(UserContext);
   const { data, isLoading, fetchData } = useData();

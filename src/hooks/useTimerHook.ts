@@ -9,6 +9,7 @@ export const useTimer = (
   const [isFinished, setIsFinished] = useState(false);
   const [intervalId, setIntervalId] = useState(null);
   const [questionsAsked, setQuestionsAsked] = useState(0);
+  const [hasStarted, setHasStarted] = useState(false); // New state variable
 
   const handleTimer = () => {
     if (intervalId !== null) {
@@ -42,10 +43,10 @@ export const useTimer = (
   };
 
   useEffect(() => {
-    if (elapsedTime > 0 && !isFinished) {
+    if (elapsedTime > 0 && !isFinished && hasStarted) {
       handleTimer();
     }
-  }, [elapsedTime, isFinished]);
+  }, [elapsedTime, isFinished, hasStarted]);
 
   useEffect(() => {
     return () => {
@@ -59,6 +60,7 @@ export const useTimer = (
     setQuestionsAsked(0);
     setIsFinished(false);
     setElapsedTime(initialTimer);
+    setHasStarted(true); // Set hasStarted to true when starting timer
   };
 
   return {
