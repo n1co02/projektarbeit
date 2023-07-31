@@ -38,4 +38,9 @@ export const modalStyles = StyleSheet.create({
     fontWeight: 'bold',
     textAlign: 'center',
   },
+  modalInput: {
+    padding: 10,
+    width: '100%',
+    marginBottom: 20,
+  },
 });

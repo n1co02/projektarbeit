@@ -8,13 +8,12 @@ import {
   View,
   Button,
   StyleSheet,
+  TextInput,
 } from 'react-native';
 import { BarCodeScanner } from 'expo-barcode-scanner';
 import UserContext from '../../../components/UserContext';
 import { styles } from '../../../styles/LearningScreenStyle';
 import { modalStyles } from '../../../styles/ModalStyles';
-import { pickerStyles } from '../../../styles/pickerStyles';
-import RNPickerSelect from 'react-native-picker-select';
 import { handleCreateRoom } from '../../../components/ClassRoomComponent';
 import {
   NavigationProp,
@@ -111,7 +110,6 @@ const ClassRoomScreen = () => {
         >
           <Text style={styles.submitText}>Join Class Room</Text>
         </TouchableOpacity>
-
         <Modal
           animationType="slide"
           transparent={true}
@@ -143,27 +141,23 @@ const ClassRoomScreen = () => {
           <View style={modalStyles.centeredView}>
             <View style={modalStyles.modalView}>
               <Text style={modalStyles.modalText}>
-                Select number of questions
+                Type in number of questions
               </Text>
 
-              <RNPickerSelect
-                onValueChange={(value) => setSelectedQuestions(value)}
-                items={[
-                  { label: '5', value: '5' },
-                  { label: '10', value: '10' },
-                  { label: '15', value: '15' },
-                ]}
-              />
+              <TextInput
+                style={modalStyles.modalInput}
+                placeholder="5"
+                onChangeText={(text) => setSelectedQuestions(parseInt(text))}
+                value={selectedQuestions.toString()}
+              ></TextInput>
 
               <Text>Select time for questions</Text>
-              <RNPickerSelect
-                onValueChange={(value) => setSelectedTime(value)}
-                items={[
-                  { label: '15 seconds', value: '15' },
-                  { label: '30 seconds', value: '30' },
-                  { label: '60 seconds', value: '60' },
-                ]}
-              />
+              <TextInput
+                style={modalStyles.modalInput}
+                placeholder="15"
+                onChangeText={(text) => setSelectedTime(parseInt(text))}
+                value={selectedTime.toString()}
+              ></TextInput>
 
               <TouchableOpacity
                 style={modalStyles.closeButton}
