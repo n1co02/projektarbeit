@@ -20,6 +20,12 @@ export const handleCreateRoom = async (
   if (!user) {
     throw new Error('User must be logged in to create a room');
   }
+  if (time > 60 || time < 15) {
+    return alert('Please take a time between 15-60 ');
+  }
+  if (questions > 15 && questions < 5) {
+    return alert('Please take a number of questions between 5-15 ');
+  }
   const started = false;
 
   // Prepare the room document
