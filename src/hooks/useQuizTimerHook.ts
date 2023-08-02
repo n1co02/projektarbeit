@@ -19,7 +19,7 @@ export const useQuizTimer = ({
   const [isDisabled, setIsDisabled] = useState(true);
   const [isFinished, setIsFinished] = useState(false);
 
-  const handleTimer = async (timer: number | null) => {
+  const handleTimer = async () => {
     if (intervalId !== null) {
       clearInterval(intervalId);
     }
@@ -39,7 +39,7 @@ export const useQuizTimer = ({
           ) {
             setQuestionsAsked(questionsAsked + 1);
             setElapsedTime(time);
-            handleTimer(time); // Reset the elapsed time to the initial timer value
+            handleTimer(); // Reset the elapsed time to the initial timer value
             console.log(totalQuestions, questionsAsked);
             console.log(isFinished);
           } else {
@@ -63,7 +63,7 @@ export const useQuizTimer = ({
     ) {
       setIsDisabled(false);
       setElapsedTime(time);
-      handleTimer(time);
+      handleTimer();
     }
   }, [isLoading, time, task]);
 

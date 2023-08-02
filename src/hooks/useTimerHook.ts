@@ -7,7 +7,7 @@ export const useTimer = (
 ) => {
   const [elapsedTime, setElapsedTime] = useState(initialTimer);
   const [isFinished, setIsFinished] = useState(false);
-  const [intervalId, setIntervalId] = useState(null);
+  const [intervalId, setIntervalId] = useState<NodeJS.Timer | null>(null);
   const [questionsAsked, setQuestionsAsked] = useState(0);
   const [hasStarted, setHasStarted] = useState(false); // New state variable
 

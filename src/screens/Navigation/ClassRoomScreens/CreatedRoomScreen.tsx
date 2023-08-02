@@ -37,10 +37,7 @@ const CreatedRoomScreen = () => {
     null
   );
   const [timer, setTimer] = useState(route.params.time);
-  if (!userContext || !userContext.user) {
-    return null;
-  }
-  const { user } = userContext;
+
   const handleLeaveRoom = async () => {
     //setQrCodeVisible(false);
     setIsLeaving(true);
@@ -52,13 +49,6 @@ const CreatedRoomScreen = () => {
     const joinedUsersArray = await fetchJoinedUsers(route.params.roomId);
     setJoinedUsers(joinedUsersArray);
   };
-
-  // Fetch the joinedUsers data when the component mounts or when the roomId changes
-  useEffect(() => {
-    if ((qrCodeVisible && !isLeaving) || (!isLeaving && isFinished)) {
-      fetchJoinedUsersCall();
-    }
-  });
 
   //check if bugss
 
@@ -91,7 +81,12 @@ const CreatedRoomScreen = () => {
       setTask(null);
     }
   };
-
+  // Fetch the joinedUsers data when the component mounts or when the roomId changes
+  useEffect(() => {
+    if ((qrCodeVisible && !isLeaving) || (!isLeaving && isFinished)) {
+      fetchJoinedUsersCall();
+    }
+  });
   // Effect to set up the real-time listener when the component mounts
   useEffect(() => {
     const db = getFirestore();
@@ -102,6 +97,10 @@ const CreatedRoomScreen = () => {
     // Clean up the listener when the component unmounts
     return () => unsubscribe();
   }, [route.params.roomId]);
+  if (!userContext || !userContext.user) {
+    return null;
+  }
+  const { user } = userContext;
   return (
     <View style={createdRoomStyles.container}>
       <TouchableOpacity

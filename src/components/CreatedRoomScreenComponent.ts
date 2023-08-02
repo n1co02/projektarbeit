@@ -9,7 +9,6 @@ import {
 } from 'firebase/firestore';
 import { db } from '../config/firebase';
 import { Alert } from 'react-native';
-import { useState } from 'react';
 
 const leaveRoom = async (
   roomId: string,
