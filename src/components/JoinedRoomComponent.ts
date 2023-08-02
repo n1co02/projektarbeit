@@ -42,12 +42,15 @@ export const fetchRoomData = async (
   navigation: NavigationProp<ReactNavigation.RootParamList>,
   roomId: string,
   time: number | null,
-  setTime: { (value: SetStateAction<number | null>): void; (arg0: any): void },
+  setTime: {
+    (value: SetStateAction<number | null>): void;
+    (arg0: number): void;
+  },
   setTotalQuestions: {
     (value: SetStateAction<number>): void;
-    (arg0: any): void;
+    (arg0: string): void;
   },
-  setTask: { (value: SetStateAction<string>): void; (arg0: any): void },
+  setTask: { (value: SetStateAction<string>): void; (arg0: string): void },
   setLeave: { (value: SetStateAction<boolean>): void; (arg0: boolean): void }
 ) => {
   const db = getFirestore();
