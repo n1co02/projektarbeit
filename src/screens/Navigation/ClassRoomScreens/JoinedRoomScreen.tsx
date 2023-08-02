@@ -19,6 +19,11 @@ type CreatedRoomScreenRouteProp = RouteProp<
   StackParamList,
   'CreatedRoomScreen'
 >;
+type User = {
+  id: string;
+  username: string;
+  score: number;
+};
 
 const JoinedRoomScreen = () => {
   const route = useRoute<CreatedRoomScreenRouteProp>();
@@ -107,7 +112,7 @@ const JoinedRoomScreen = () => {
         <View style={yourScoreStyles.modalContainer}>
           <View style={yourScoreStyles.contentContainer}>
             <Text style={yourScoreStyles.scoreHeading}>Your Score</Text>
-            {roomData.joinedUsers.map((user) => (
+            {roomData.joinedUsers.map((user: User) => (
               <View key={user.id}>
                 <Text
                   style={yourScoreStyles.userScore}

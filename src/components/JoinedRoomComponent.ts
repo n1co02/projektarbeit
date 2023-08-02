@@ -48,7 +48,7 @@ export const fetchRoomData = async (
   },
   setTotalQuestions: {
     (value: SetStateAction<number>): void;
-    (arg0: string): void;
+    (arg0: number): void;
   },
   setTask: { (value: SetStateAction<string>): void; (arg0: string): void },
   setLeave: { (value: SetStateAction<boolean>): void; (arg0: boolean): void }

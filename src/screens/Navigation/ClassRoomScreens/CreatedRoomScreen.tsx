@@ -9,9 +9,15 @@ import {
 } from '../../../components/CreatedRoomScreenComponent';
 import { useTimer } from '../../../hooks/useTimerHook';
 import UserContext from '../../../components/UserContext';
-import { getFirestore, doc, onSnapshot } from 'firebase/firestore';
+import {
+  getFirestore,
+  doc,
+  onSnapshot,
+  DocumentSnapshot,
+} from 'firebase/firestore';
 import { handleQuestions } from '../../../components/CreatedRoomScreenComponent';
 import { scoreTable } from '../../../styles/scoreTable';
+
 type StackParamList = {
   CreatedRoomScreen: { roomId: string; questions: number; time: number };
 };
@@ -65,7 +71,7 @@ const CreatedRoomScreen = () => {
     handleQuestions(route.params.roomId, timer);
   };
 
-  const handleQuizItemsUpdate = (snapshot: any) => {
+  const handleQuizItemsUpdate = (snapshot: DocumentSnapshot) => {
     const roomData = snapshot.data();
     const quizItemsArray = roomData?.quizItems || [];
 
