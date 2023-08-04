@@ -40,8 +40,6 @@ export const useQuizTimer = ({
             setQuestionsAsked(questionsAsked + 1);
             setElapsedTime(time);
             handleTimer(); // Reset the elapsed time to the initial timer value
-            console.log(totalQuestions, questionsAsked);
-            console.log(isFinished);
           } else {
             setIsFinished(true);
           }

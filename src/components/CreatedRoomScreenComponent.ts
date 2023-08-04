@@ -104,9 +104,6 @@ export const handleRoomSettings = async (roomId: string) => {
 };
 
 export const fetchJoinedUsers = async (roomId: string) => {
-  /* 
-    Warum hier nicht auch ein realtime listener auf die joined users
-     */
   try {
     const db = getFirestore();
     const docRef = doc(db, 'rooms', roomId);

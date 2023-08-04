@@ -22,7 +22,6 @@ export const answerSubmit = async (
 
     // If the user is found in the array
     if (userIndex !== -1) {
-      console.log(solution, answer);
       // Increment the score of that user by 1
       if (solution == answer) {
         joinedUsersArray[userIndex].score =
@@ -30,7 +29,6 @@ export const answerSubmit = async (
         await updateDoc(docRef, {
           joinedUsers: joinedUsersArray,
         });
-        console.log('answerTrue');
         return true;
       }
       return false;

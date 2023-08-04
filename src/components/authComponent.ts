@@ -52,7 +52,6 @@ export const handleLogin = async (
     }
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (error: any) {
-    console.log(error);
     let errorMessage;
     switch (error.code) {
       case 'auth/wrong-password':
@@ -65,7 +64,6 @@ export const handleLogin = async (
         errorMessage = 'An error occurred. Please try again.';
         break;
     }
-    console.log(errorMessage);
     alert(errorMessage);
   }
 };
@@ -91,7 +89,6 @@ export const handleRegistration = async (
     navigation.navigate('Login' as never);
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (error: any) {
-    console.log(error);
     let errorMessage;
     switch (error.code) {
       case 'auth/invalid-email':
@@ -104,7 +101,6 @@ export const handleRegistration = async (
         errorMessage = 'An error occurred. Please try again.';
         break;
     }
-    console.log(errorMessage);
     alert(errorMessage);
   }
 };

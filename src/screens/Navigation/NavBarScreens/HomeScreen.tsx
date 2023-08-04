@@ -28,7 +28,6 @@ const HomeScreen = () => {
   };
 
   const handleAnswerSubmitCall = () => {
-    console.log(data);
     setIsTouched(true);
 
     const isAnswerCorrect = handleAnswerSubmit(data, answer);
